@@ -1,0 +1,21 @@
+{
+    "name": "guojikai/plunar",
+    "description": "A chinese lunar convert tool,written by PHP.",
+    "keywords": ["lunar", "date", "laravel"],
+    "license": "MIT",
+		"homepage": "https://github.com/guojikai/plunar",
+    "authors": [
+        {
+            "name": "guojikai",
+            "email": "guojikai@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.4.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Plunar\\": "src"
+        }
+    }
+}
