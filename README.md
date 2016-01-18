@@ -10,16 +10,18 @@ For Laravel 5, install the latest stable version using composer:
 composer require guojikai-laravel
 ```
 
-And add the middleware in `app/Http/Middleware/Kernel.php`:
+And add the require in your index file: (eg. index.php)
 
 ```php
-\Reslash\App\Http\Middleware\Reslash::class,
+require 'vendor/autoload.php';
 ```
 
 Usege
 -----
 ```php
 <?php
+
+
 use Plunar\Plunar;
 use Plunar\PlunarException;
 
@@ -37,13 +39,17 @@ dump($lunar_array);
 output:
 
 ```php
-array:7 [▼
-  0 => "一九八三"
-  1 => "腊月"
-  2 => "二十"
-  3 => "癸亥"
-  4 => "猪"
-  5 => 0
-  6 => array:3 [▶]
+array:7 [
+  0 => "一九八三" //阴历年
+  1 => "腊月" //阴历月
+  2 => "二十" //阴历日
+  3 => "癸亥" //天干地支
+  4 => "猪" //生肖
+  5 => 0 //闰月
+  6 => array:3 [ //阴历日期对应数字
+    0 => 1983
+    1 => 12
+    2 => 20
+  ]
 ]
 ```
