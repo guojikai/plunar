@@ -84,12 +84,12 @@ class Plunar {
 
 
 	/**
-	 * 将阳历转换为阴历
-	 * @param year 公历-年
-	 * @param month 公历-月
-	 * @param date 公历-日
+	 * convert solar date to lunar date
+	 * @param year 阳历-年
+	 * @param month 阳历-月
+	 * @param date 阳历-日
 	 */
-	public static function convertSolarToLunar($year, $month, $date)
+	public static function solarToLunar($year, $month, $date)
 	{
 		self::isValidDate($year, $month, $date);
 		return self::getLunarByBetween($year, self::getDaysBetweenSolar($year, $month, $date) );
@@ -214,8 +214,8 @@ class Plunar {
 	}
 
 	/**
-	 * 获取农历每年的天数
-	 * @param year 农历年份
+	 * 获取阳历每年的天数
+	 * @param year 阳历年份
 	 */
 	public static function getLunarYearDays($year) {
 			$yearData = self::$lunarInfo[$year-self::$minYear];
