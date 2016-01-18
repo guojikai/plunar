@@ -4,10 +4,10 @@ A chinese lunar convert tool,written by PHP. 一个PHP写的中国阴历转换�
 
 Installation
 ------------
-For Laravel 5, install the latest stable version using composer:
+Install the latest stable version using composer:
 
 ```
-composer require guojikai-laravel
+composer require guojikai/plunar
 ```
 
 And add the require in your index file: (eg. index.php)
