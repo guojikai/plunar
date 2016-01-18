@@ -1,4 +1,4 @@
-plunar
+Plunar
 ===============
 A chinese lunar convert tool,written by PHP. 一个PHP写的中国阴历转换工具，用于将阳历日期转换为中国阴历日期。
 
