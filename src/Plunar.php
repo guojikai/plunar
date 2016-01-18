@@ -2,12 +2,16 @@
 
 namespace Plunar;
 
+use Exception;
+
 class Plunar {
 
-	private $minYear = 1891;
-	private $maxYear = 2100;
+	private static $minYear = 1891;
+	private static $maxYear = 2100;
 
-	private $lunarInfo = [
+	private static $cnNumbers = ['零', '一', '二', '三', '四', '五', '六', '七', '八', '九', '十', '十一', '十二'];
+
+	private static $lunarInfo = [
 			[0, 2, 9, 21936], [6, 1, 30, 9656], [0, 2, 17, 9584], [0, 2, 6, 21168], [5, 1, 26, 43344], [0, 2, 13, 59728], 
 			[0, 2, 2, 27296], [3, 1, 22, 44368], [0, 2, 10, 43856], [8, 1, 30, 19304], [0, 2, 19, 19168], [0, 2, 8, 42352], 
 			[5, 1, 29, 21096], [0, 2, 16, 53856], [0, 2, 4, 55632], [4, 1, 25, 27304], [0, 2, 13, 22176], [0, 2, 2, 39632], 
@@ -45,256 +49,310 @@ class Plunar {
 			[0, 2, 5, 19168], [4, 1, 25, 42216], [0, 2, 12, 42192], [0, 2, 1, 53584], [2, 1, 21, 55592], [0, 2, 9, 54560]
 		];
 
-    /**
-     * 将阳历转换为阴历
-     * @param year 公历-年
-     * @param month 公历-月
-     * @param date 公历-日
-     */
-    function convertSolarToLunar($year,$month,$date){
-        //debugger;
-        $yearData = $this->lunarInfo[$year-$this->MIN_YEAR];
-        if($year==$this->MIN_YEAR&&$month<=2&&$date<=9){
-            return array(1891,'正月','初一','辛卯',1,1,'兔');
-        }
-        return $this->getLunarByBetween($year,$this->getDaysBetweenSolar($year,$month,$date,$yearData[1],$yearData[2]));
-    }
-    function convertSolarMonthToLunar($year,$month) {
-        $yearData = $this->lunarInfo[$year-$this->MIN_YEAR];
-        if($year==$this->MIN_YEAR&&$month<=2&&$date<=9){
-            return array(1891,'正月','初一','辛卯',1,1,'兔');
-        }
-        $month_days_ary = array(31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31);
-        $dd = $month_days_ary[$month];
-        if($this->isLeapYear($year) && $month == 2) $dd++;
-        $lunar_ary = array();
-        for ($i = 1; $i < $dd; $i++) {
-            $array = $this->getLunarByBetween($year,$this->getDaysBetweenSolar($year, $month, $i, $yearData[1], $yearData[2]));
-            $array[] = $year . '-' . $month . '-' . $i;
-            $lunar_ary[$i] = $array;
-        }
-        return $lunar_ary;
-    }
-    /**
-     * 判断是否是闰年
-     * @param year
-     */
-    function isLeapYear($year){
-        return (($year%4==0 && $year%100 !=0) || ($year%400==0));
-    }
-    /**
-     * 获取干支纪年
-     * @param year
-     */
-    function getLunarYearName($year){
-         $sky = array('庚','辛','壬','癸','甲','乙','丙','丁','戊','己');
-         $earth = array('申','酉','戌','亥','子','丑','寅','卯','辰','巳','午','未');
-         $year = $year.'';
-         return $sky[$year{3}].$earth[$year%12];
-    }
-    /**
-     * 根据阴历年获取生肖
-     * @param year 阴历年
-     */
-    function getYearZodiac($year){
-         $zodiac = array('猴','鸡','狗','猪','鼠','牛','虎','兔','龙','蛇','马','羊');
-         return $zodiac[$year%12];
-    }
+	//format data
+	private $year = 0;
+	private $month = 0;
+	private $date = 0;
+
+	//construct
+	public function __construct($year = 1891, $month = 2, $date = 9) {
+		self::isValidDate($year, $month, $date);
+	}
+
+	//set
+	public function setDate($year = 0, $month = 0, $date = 0) {
+		self::isValidDate($year, $month, $date);
+		$this->year = $year;
+		$this->month = $month;
+		$this->date = $date;
+	}
+
+	//checkDate
+	public static function isValidDate($year = 0, $month = 0, $date = 0) {
+		if(is_string($year) && $date = 0) {
+			$time = strtotime($year);
+		} else {
+			$time = mktime(0, 0, 0, $month, $date, $year);
+		}
+		$minTime = mktime(0, 0, 0, 2, 9, self::$minYear);
+		$maxTime = mktime(0, 0, 0, 2, 9, self::$maxYear);
+		if($time < $minTime || $time > $maxTime) {
+			throw new PlunarException("Plunar Error: expected date $year.$month.$date, expecting 1891.2.9 - 2100.2.9");
+		}
+		return true;
+	}
+
+
 	/**
-    * 将阴历转换为阳历
-    * @param year 阴历-年
-    * @param month 阴历-月，闰月处理：例如如果当年闰五月，那么第二个五月就传六月，相当于阴历有13个月，只是有的时候第13个月的天数为0
-    * @param date 阴历-日
-    */
-    function convertLunarToSolar($year,$month,$date){
-        $yearData = $this->lunarInfo[$year-$this->MIN_YEAR];
-        $between = $this->getDaysBetweenLunar($year,$month,$date);
-        $res = mktime(0,0,0,$yearData[1],$yearData[2],$year);
-        $res = date('Y-m-d', $res+$between*24*60*60);
-        $day    = explode('-', $res);
-        $year    = $day[0];
-        $month= $day[1];
-        $day    = $day[2];
-        return array($year, $month, $day);
-    }
-    /**
-     * 获取阳历月份的天数
-     * @param year 阳历-年
-     * @param month 阳历-月
-     */
-    function getSolarMonthDays($year,$month){
-         $monthHash = array('1'=>31,'2'=>$this->isLeapYear($year)?29:28,'3'=>31,'4'=>30,'5'=>31,'6'=>30,'7'=>31,'8'=>31,'9'=>30,'10'=>31,'11'=>30,'12'=>31);
-         return $monthHash["$month"];
-    }
-    /**
-     * 获取阴历月份的天数
-     * @param year 阴历-年
-     * @param month 阴历-月，从一月开始
-     */
-    function getLunarMonthDays($year,$month){
-         $monthData = $this->getLunarMonths($year);
-         return $monthData[$month-1];
-    }
-    /**
-     * 获取阴历每月的天数的数组
-     * @param year
-     */
-    function getLunarMonths($year){
-        $yearData = $this->lunarInfo[$year - $this->MIN_YEAR];
-        $leapMonth = $yearData[0];
-        $bit = decbin($yearData[3]);
-        for ($i = 0; $i < strlen($bit);$i ++) {
-            $bitArray[$i] = substr($bit, $i, 1);
-        }
-        for($k=0,$klen=16-count($bitArray);$k<$klen;$k++){
-            array_unshift($bitArray, '0');
-        }
-        $bitArray = array_slice($bitArray,0,($leapMonth==0?12:13));
-        for($i=0; $i<count($bitArray); $i++){
-            $bitArray[$i] = $bitArray[$i] + 29;
-        }
-        return $bitArray;
-    }
-    /**
-     * 获取农历每年的天数
-     * @param year 农历年份
-     */
-    function getLunarYearDays($year){
-        $yearData = $this->lunarInfo[$year-$this->MIN_YEAR];
-        $monthArray = $this->getLunarYearMonths($year);
-        $len = count($monthArray);
-        return ($monthArray[$len-1]==0?$monthArray[$len-2]:$monthArray[$len-1]);
-    }
-    function getLunarYearMonths($year){
-         //debugger;
-        $monthData = $this->getLunarMonths($year);
-        $res=array();
-        $temp=0;
-        $yearData = $this->lunarInfo[$year-$this->MIN_YEAR];
-        $len = ($yearData[0]==0?12:13);
-        for($i=0;$i<$len;$i++){
-            $temp=0;
-            for($j=0;$j<=$i;$j++){
-                $temp+=$monthData[$j];
-            }
-            array_push($res, $temp);
-        }
-         return $res;
-    }
-    /**
-     * 获取闰月
-     * @param year 阴历年份
-     */
-    function getLeapMonth($year){
-        $yearData = $this->lunarInfo[$year-$this->MIN_YEAR];
-        return $yearData[0];
-    }
-    /**
-     * 计算阴历日期与正月初一相隔的天数
-     * @param year
-     * @param month
-     * @param date
-     */
-    function getDaysBetweenLunar($year,$month,$date){
-        $yearMonth = $this->getLunarMonths($year);
-        $res=0;
-        for($i=1;$i<$month;$i++){
-            $res +=$yearMonth[$i-1];
-        }
-        $res+=$date-1;
-        return $res;
-    }
-    /**
-     * 计算2个阳历日期之间的天数
-     * @param year 阳历年
-     * @param cmonth
-     * @param cdate
-     * @param dmonth 阴历正月对应的阳历月份
-     * @param ddate 阴历初一对应的阳历天数
-     */
-    function getDaysBetweenSolar($year,$cmonth,$cdate,$dmonth,$ddate){
-        $a = mktime(0,0,0,$cmonth,$cdate,$year);
-        $b = mktime(0,0,0,$dmonth,$ddate,$year);
-        return ceil(($a-$b)/24/3600);
-    }
-    /**
-     * 根据距离正月初一的天数计算阴历日期
-     * @param year 阳历年
-     * @param between 天数
-     */
-    function getLunarByBetween($year,$between){
-        //debugger;
-        $lunarArray = array();
-        $yearMonth=array();
-        $t=0;
-        $e=0;
-        $leapMonth=0;
-        $m='';
-        if($between==0){
-            array_push($lunarArray, $year,'正月','初一');
-            $t = 1;
-            $e = 1;
-        }else{
-            $year = $between>0? $year : ($year-1);
-            $yearMonth = $this->getLunarYearMonths($year);
-            $leapMonth = $this->getLeapMonth($year);
-            $between = $between>0?$between : ($this->getLunarYearDays($year)+$between);
-            for($i=0;$i<13;$i++){
-                if($between==$yearMonth[$i]){
-                    $t=$i+2;
-                    $e=1;
-                    break;
-                }else if($between<$yearMonth[$i]){
-                    $t=$i+1;
-                    $e=$between-(empty($yearMonth[$i-1])?0:$yearMonth[$i-1])+1;
-                    break;
-                }
-            }
-            $m = ($leapMonth!=0&&$t==$leapMonth+1)?('闰'.$this->getCapitalNum($t- 1,true)):$this->getCapitalNum(($leapMonth!=0&&$leapMonth+1<$t?($t-1):$t),true);
-   $my_year = $this->toYear($year);
-            array_push($lunarArray,$my_year,$m,$this->getCapitalNum($e,false));
-        }
-        array_push($lunarArray,$this->getLunarYearName($year));// 天干地支
-        array_push($lunarArray,$t,$e);
-        array_push($lunarArray,$this->getYearZodiac($year));// 12生肖
-        array_push($lunarArray,$leapMonth);// 闰几月
-        return $lunarArray;
-    }
- //转换成中文年份
-    function toYear($year){
-  $arr = array("零","一","二","三","四","五","六","七","八","九");
-  $year_arr = str_split($year);
-  $str = $arr[$year_arr[0]].$arr[$year_arr[1]].$arr[$year_arr[2]].$arr[$year_arr[3]];
-  return $str;
- }
-    /**
-     * 获取数字的阴历叫法
-     * @param num 数字
-     * @param isMonth 是否是月份的数字
-     */
-    function getCapitalNum($num,$isMonth){
-        $isMonth = $isMonth || false;
-        $dateHash=array('0'=>'','1'=>'一','2'=>'二','3'=>'三','4'=>'四','5'=>'五','6'=>'六','7'=>'七','8'=>'八','9'=>'九','10'=>'十 ');
-        $monthHash=array('0'=>'','1'=>'正月','2'=>'二月','3'=>'三月','4'=>'四月','5'=>'五月','6'=>'六月','7'=>'七月','8'=>'八月','9'=>'九月','10'=>'十月','11'=>'冬月','12'=>'腊月');
-        $res='';
-        if($isMonth){
-            $res = $monthHash[$num];
-        }else{
-            if($num<=10){
-                $res = '初'.$dateHash[$num];
-            }else if($num>10&&$num<20){
-                $res = '十'.$dateHash[$num-10];
-            }else if($num==20){
-                $res = "二十";
-            }else if($num>20&&$num<30){
-                $res = "廿".$dateHash[$num-20];
-            }else if($num==30){
-                $res = "三十";
-            }
-        }
-        return $res;
-    }
+	 * 将阳历转换为阴历
+	 * @param year 公历-年
+	 * @param month 公历-月
+	 * @param date 公历-日
+	 */
+	public static function convertSolarToLunar($year, $month, $date)
+	{
+		self::isValidDate($year, $month, $date);
+		return self::getLunarByBetween($year, self::getDaysBetweenSolar($year, $month, $date) );
+	}
+	public static function convertSolarMonthToLunar($year, $month) {
+		self::isValidDate($year, $month, $date);
+		$month_days_ary = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+		$dd = $month_days_ary[$month];
+		if(self::isLeapYear($year) && $month == 2) $dd++;
+		$lunar_ary = [];
+		for ($i = 1; $i < $dd; $i++) {
+			$array = self::getLunarByBetween($year, self::getDaysBetweenSolar($year, $month, $i));
+			$array[] = $year . '-' . $month . '-' . $i;
+			$lunar_ary[$i] = $array;
+		}
+		return $lunar_ary;
+	}
+
+	/**
+	 * 判断那年是否是闰年
+	 * @param Number year
+	 * @return Boolean 
+	 */
+	public static function isLeapYear($year) {
+		return ($year%4 == 0 && $year%100 != 0) || ($year%400 == 0);
+	}
+
+	/**
+	 * 将阳历年份转为干支纪年
+	 * @param Number year eg. 1984
+	 * @return String eg. 甲子
+	 */
+	public static function getLunarYearName($year) {
+		$sky = ['庚', '辛', '壬', '癸', '甲', '乙', '丙', '丁', '戊', '己'];
+		$earth = ['申', '酉', '戌', '亥', '子', '丑', '寅', '卯', '辰', '巳', '午', '未'];
+		$year = (string)$year;
+		return $sky[$year{3}] . $earth[$year%12];
+	}
+
+	/**
+	 * 根据阴历年获取生肖
+	 * @param year 阴历年
+	 */
+	public static function getYearZodiac($year) {
+		$zodiac = ['猴', '鸡', '狗', '猪', '鼠', '牛', '虎', '兔', '龙', '蛇', '马', '羊'];
+		return $zodiac[$year%12];
+	}
+
+	/**
+	* 将阴历转换为阳历
+	* @param year 阴历-年
+	* @param month 阴历-月，闰月处理：例如如果当年闰五月，那么第二个五月就传六月，相当于阴历有13个月，只是有的时候第13个月的天数为0
+	* @param date 阴历-日
+	*/
+	public static function convertLunarToSolar($year, $month, $date) {
+		$yearData = self::$lunarInfo[$year-self::$minYear];
+		$between = self::getDaysBetweenLunar($year, $month, $date);
+		$res = mktime(0, 0, 0, $yearData[1], $yearData[2], $year);
+		$res = date('Y-m-d', $res +$between*24*60*60);
+		$day = explode('-', $res);
+		$year = $day[0];
+		$month = $day[1];
+		$day = $day[2];
+		return [$year, $month, $day];
+	}
+
+	/**
+	 * 获取阳历指定月份的天数
+	 * @param Number year 年 eg. 1984
+	 * @param Number month 月 eg. 9
+	 * @return Number 天数 eg. 30
+	 */
+	public static function getSolarMonthDays($year, $month) {
+		$monthHash = [
+				'0' => 0,
+				'1' => 31,
+				'2' => self::isLeapYear($year) ? 29 : 28,
+				'3' => 31,
+				'4' => 30,
+				'5' => 31,
+				'6' => 30,
+				'7' => 31,
+				'8' => 31,
+				'9' => 30,
+				'10' => 31,
+				'11' => 30,
+				'12' => 31
+			];
+		return $monthHash[$month];
+	}
+
+	/**
+	 * 获取阴历指定月份的天数
+	 * @param Number year 年 eg. 1984
+	 * @param Number month 月 eg. 9
+	 * @return Number 天数 eg. 30
+	 */
+	public static function getLunarMonthDays($year, $month) {
+		$monthData = self::getLunarMonths($year);
+		return $monthData[$month-1];
+	}
+
+	/**
+	 * 获取阴历每月的天数的数组
+	 * @param year
+	 */
+	public static function getLunarMonths($year) {
+		$yearData = self::$lunarInfo[$year - self::$minYear];
+		$leapMonth = $yearData[0];
+		$bit = decbin($yearData[3]);
+		for ($i = 0; $i < strlen($bit); $i++) {
+			$bitArray[$i] = substr($bit, $i, 1);
+		}
+		for($k = 0, $klen = 16-count($bitArray); $k < $klen; $k++) {
+			array_unshift($bitArray, '0');
+		}
+		$bitArray = array_slice($bitArray, 0, ($leapMonth == 0 ? 12:13));
+		for($i = 0; $i < count($bitArray); $i++) {
+			$bitArray[$i] = $bitArray[$i] + 29;
+		}
+		return $bitArray;
+	}
+
+	/**
+	 * 获取农历每年的天数
+	 * @param year 农历年份
+	 */
+	public static function getLunarYearDays($year) {
+			$yearData = self::$lunarInfo[$year-self::$minYear];
+			$monthArray = self::getLunarYearMonths($year);
+			$len = count($monthArray);
+			return $monthArray[$len-1] == 0 ? $monthArray[$len-2] : $monthArray[$len-1];
+	}
+	public static function getLunarYearMonths($year) {
+		$monthData = self::getLunarMonths($year);
+		$res = [];
+		$temp = 0;
+		$yearData = self::$lunarInfo[$year-self::$minYear];
+		$len = ($yearData[0] == 0 ? 12:13);
+		for($i = 0; $i < $len; $i++) {
+			$temp = 0;
+			for($j = 0; $j <= $i; $j++) {
+				$temp += $monthData[$j];
+			}
+			array_push($res, $temp);
+		}
+		return $res;
+	}
+
+	/**
+	 * 获取闰月
+	 * @param year 阴历年份
+	 */
+	public static function getLeapMonth($year) {
+		$yearData = self::$lunarInfo[$year-self::$minYear];
+		return $yearData[0];
+	}
+
+	/**
+	 * 计算阴历日期与正月初一相隔的天数
+	 * @param year
+	 * @param month
+	 * @param date
+	 */
+	public static function getDaysBetweenLunar($year, $month, $date) {
+		$yearMonth = self::$getLunarMonths($year);
+		$res = 0;
+		for($i = 1; $i < $month; $i++) {
+				$res += $yearMonth[$i-1];
+		}
+		$res += $date-1;
+		return $res;
+	}
+
+	/**
+	 * 计算某个阳历日期距离当年的正月初一有多少天
+	 * @param Number year 阳历年份
+	 * @param Number month 阳历月份
+	 * @param Number date 阳历日期
+	 * @return Number 天数
+	 */
+	public static function getDaysBetweenSolar($year, $month, $date) {
+		$yearInfo = self::$lunarInfo[$year-self::$minYear];
+		$a = mktime(0, 0, 0, $month, $date, $year);
+		$b = mktime(0, 0, 0, $yearInfo[1], $yearInfo[2], $year);
+		return (int)ceil( ($a-$b) / 24 / 3600 );
+	}
+
+	/**
+	 * 根据距离正月初一的天数计算阴历日期
+	 * @param Number year 阳历年份 eg. 1984
+	 * @param Number between 天数 eg. 12
+	 */
+	public static function getLunarByBetween($year, $between) {
+		$lunarArray = [];
+		$yearMonth = [];
+		$t = 0;
+		$e = 0;
+		$leapMonth = 0;
+		$m = '';
+		if($between == 0) {
+			array_push($lunarArray, self::toYear($year), '正月', '初一');
+			$t = 1;
+			$e = 1;
+		} else{
+			$year = $between > 0 ? $year : ($year-1);
+			$yearMonth = self::getLunarYearMonths($year);
+			$leapMonth = self::getLeapMonth($year);
+			$between = $between > 0 ? $between : (self::getLunarYearDays($year) +$between);
+			for($i = 0; $i < 13; $i++) {
+				if($between == $yearMonth[$i]) {
+					$t = $i +2;
+					$e = 1;
+					break;
+				} else if($between < $yearMonth[$i]) {
+					$t = $i +1;
+					$e = $between-(empty($yearMonth[$i-1]) ? 0 : $yearMonth[$i-1]) + 1;
+					break;
+				}
+			}
+			$m = ($leapMonth!=0 && $t == $leapMonth+1) ? ('闰'.self::getCapitalNum($t-1, true)) : self::getCapitalNum(($leapMonth!=0 && $leapMonth+1 < $t ? ($t-1) : $t), true);
+			array_push($lunarArray, self::toYear($year), $m, self::getCapitalNum($e, false)); //年月日
+		}
+		array_push($lunarArray, self::getLunarYearName($year));// 天干地支
+		array_push($lunarArray, self::getYearZodiac($year));// 12生肖
+		array_push($lunarArray, $leapMonth ? '闰'.self::$cnNumbers[$leapMonth].'月': 0);// 闰几月
+		array_push($lunarArray, [$year, $t, $e]);
+		return $lunarArray;
+	}
+
+	/**
+	 * 获取年份的阴历叫法 eg. 一九八四
+	 * @param Number year 阳历年份
+	 */
+	public static function toYear($year) {
+		$year_arr = str_split($year);
+		return self::$cnNumbers[$year_arr[0]].self::$cnNumbers[$year_arr[1]].self::$cnNumbers[$year_arr[2]].self::$cnNumbers[$year_arr[3]];
+	}
+
+	/**
+	 * 获取月份或日期的阴历叫法 eg. 腊月 | 初八
+	 * @param Number num 数字
+	 * @param Boolean isMonth 是否是月份的数字
+	 */
+	public static function getCapitalNum($num, $isMonth = false) {
+		$monthHash = ['', '正', '二', '三', '四', '五', '六', '七', '八', '九', '十', '冬', '腊'];
+		$dateHash = ['', '一', '二', '三', '四', '五', '六', '七', '八', '九', '十'];
+		if($isMonth) {
+			return $monthHash[$num].'月';
+		}
+		if($num <= 10) {
+			$str = '初'.$dateHash[$num];
+		} else if($num > 10&&$num < 20) {
+			$str = '十'.$dateHash[$num-10];
+		} else if($num == 20) {
+			$str = "二十";
+		} else if($num > 20&&$num < 30) {
+			$str = "廿".$dateHash[$num-20];
+		} else if($num == 30) {
+			$str = "三十";
+		}
+		return $str;
+	}
+
 }
-
-
 
