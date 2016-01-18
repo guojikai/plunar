@@ -9,7 +9,6 @@ Install the latest stable version using composer:
 ```
 composer require guojikai/plunar
 ```
-
 And add the require in your index file: (eg. index.php)
 
 ```php
