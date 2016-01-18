@@ -21,7 +21,6 @@ Usege
 ```php
 <?php
 
-
 use Plunar\Plunar;
 use Plunar\PlunarException;
 
@@ -31,7 +30,8 @@ try {
 	echo $e->getMessage();
 	exit;
 }
-dump($lunar_array);
+
+print_r($lunar_array);
 
 ?>
 ```
