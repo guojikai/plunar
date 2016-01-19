@@ -30,7 +30,7 @@ try {
 	exit;
 }
 
-print_r($lunar_array);
+var_dump($lunar_array);
 
 ?>
 ```
