@@ -1,22 +1,22 @@
 Plunar
-===============
+======
 一个PHP版中国阴历转换工具，用于将阳历日期转换为中国阴历日期。
 
-Installation
-------------
-Install the latest stable version using composer:
+安装
+----
+使用 Composer 安装：
 
 ```
 composer require guojikai/plunar
 ```
-And add the require in your index file: (eg. index.php)
+在入口文件引入 Composer 启动脚本： (eg. index.php)
 
 ```php
 require 'vendor/autoload.php';
 ```
 
-Usege
------
+使用
+----
 ```php
 <?php
 
@@ -35,7 +35,7 @@ var_dump($lunar_array);
 ?>
 ```
 
-output:
+输出：
 
 ```php
 array:7 [
