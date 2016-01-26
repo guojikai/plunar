@@ -52,4 +52,11 @@ class PlunarTest extends \PHPUnit_Framework_TestCase
             array('一九九九', '冬月', '廿五', '己卯', '兔', 0, array(1999, 11, 25)),
             Plunar::solarToLunar(2000, 1, 1));
     }
+
+    public function testToYear()
+    {
+        $this->assertEquals('一九零一', Plunar::toYear(1901));
+        $this->assertEquals('二零零零', Plunar::toYear(2000));
+        $this->assertEquals('二一零零', Plunar::toYear(2100));
+    }
 }
