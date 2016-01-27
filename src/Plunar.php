@@ -2,8 +2,6 @@
 
 namespace Plunar;
 
-use Exception;
-
 class Plunar {
 
 	private static $minYear = 1891;
@@ -54,12 +52,24 @@ class Plunar {
 	private $month = 0;
 	private $date = 0;
 
-	//construct
+	/**
+	 * Plunar constructor.
+	 * @param int $year
+	 * @param int $month
+	 * @param int $date
+	 */
 	public function __construct($year = 1891, $month = 2, $date = 9) {
 		self::isValidDate($year, $month, $date);
 	}
 
-	//set
+	/**
+	 * set
+	 *
+	 * @param int $year
+	 * @param int $month
+	 * @param int $date
+	 * @throws PlunarException
+	 */
 	public function setDate($year = 0, $month = 0, $date = 0) {
 		self::isValidDate($year, $month, $date);
 		$this->year = $year;
@@ -67,7 +77,15 @@ class Plunar {
 		$this->date = $date;
 	}
 
-	//checkDate
+	/**
+	 * checkDate
+	 *
+	 * @param int $year
+	 * @param int $month
+	 * @param int $date
+	 * @return bool
+	 * @throws PlunarException
+	 */
 	public static function isValidDate($year = 0, $month = 0, $date = 0) {
 		if(is_string($year) && $date = 0) {
 			$time = strtotime($year);
@@ -85,17 +103,26 @@ class Plunar {
 
 	/**
 	 * convert solar date to lunar date
-	 * @param year 阳历-年
-	 * @param month 阳历-月
-	 * @param date 阳历-日
+	 * @param number $year 阳历-年
+	 * @param number $month 阳历-月
+	 * @param number $date 阳历-日
+	 * @return array
+	 * @throws PlunarException
 	 */
 	public static function solarToLunar($year, $month, $date)
 	{
 		self::isValidDate($year, $month, $date);
 		return self::getLunarByBetween($year, self::getDaysBetweenSolar($year, $month, $date) );
 	}
+
+	/**
+	 * @param number $year 阳历-年
+	 * @param number $month 阳历-月
+	 * @return array
+	 * @throws PlunarException
+	 */
 	public static function convertSolarMonthToLunar($year, $month) {
-		self::isValidDate($year, $month, $date);
+		self::isValidDate($year, $month, 1);
 		$month_days_ary = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 		$dd = $month_days_ary[$month];
 		if(self::isLeapYear($year) && $month == 2) $dd++;
@@ -110,8 +137,8 @@ class Plunar {
 
 	/**
 	 * 判断那年是否是闰年
-	 * @param Number year
-	 * @return Boolean 
+	 * @param number $year
+	 * @return boolean
 	 */
 	public static function isLeapYear($year) {
 		return ($year%4 == 0 && $year%100 != 0) || ($year%400 == 0);
@@ -119,8 +146,8 @@ class Plunar {
 
 	/**
 	 * 将阳历年份转为干支纪年
-	 * @param Number year eg. 1984
-	 * @return String eg. 甲子
+	 * @param number $year eg. 1984
+	 * @return string eg. 甲子
 	 */
 	public static function getLunarYearName($year) {
 		$sky = ['庚', '辛', '壬', '癸', '甲', '乙', '丙', '丁', '戊', '己'];
@@ -131,7 +158,8 @@ class Plunar {
 
 	/**
 	 * 根据阴历年获取生肖
-	 * @param year 阴历年
+	 * @param number $year 阴历年
+	 * @return string
 	 */
 	public static function getYearZodiac($year) {
 		$zodiac = ['猴', '鸡', '狗', '猪', '鼠', '牛', '虎', '兔', '龙', '蛇', '马', '羊'];
@@ -140,9 +168,10 @@ class Plunar {
 
 	/**
 	* 将阴历转换为阳历
-	* @param year 阴历-年
-	* @param month 阴历-月，闰月处理：例如如果当年闰五月，那么第二个五月就传六月，相当于阴历有13个月，只是有的时候第13个月的天数为0
-	* @param date 阴历-日
+	* @param number $year 阴历-年
+	* @param number $month 阴历-月，闰月处理：例如如果当年闰五月，那么第二个五月就传六月，相当于阴历有13个月，只是有的时候第13个月的天数为0
+	* @param number $date 阴历-日
+	* @return array
 	*/
 	public static function convertLunarToSolar($year, $month, $date) {
 		$yearData = self::$lunarInfo[$year-self::$minYear];
@@ -158,9 +187,9 @@ class Plunar {
 
 	/**
 	 * 获取阳历指定月份的天数
-	 * @param Number year 年 eg. 1984
-	 * @param Number month 月 eg. 9
-	 * @return Number 天数 eg. 30
+	 * @param number $year 年 eg. 1984
+	 * @param number $month 月 eg. 9
+	 * @return number 天数 eg. 30
 	 */
 	public static function getSolarMonthDays($year, $month) {
 		$monthHash = [
@@ -183,9 +212,9 @@ class Plunar {
 
 	/**
 	 * 获取阴历指定月份的天数
-	 * @param Number year 年 eg. 1984
-	 * @param Number month 月 eg. 9
-	 * @return Number 天数 eg. 30
+	 * @param number $year 年 eg. 1984
+	 * @param number $month 月 eg. 9
+	 * @return number 天数 eg. 30
 	 */
 	public static function getLunarMonthDays($year, $month) {
 		$monthData = self::getLunarMonths($year);
@@ -194,12 +223,14 @@ class Plunar {
 
 	/**
 	 * 获取阴历每月的天数的数组
-	 * @param year
+	 * @param number $year
+	 * @return array
 	 */
 	public static function getLunarMonths($year) {
 		$yearData = self::$lunarInfo[$year - self::$minYear];
 		$leapMonth = $yearData[0];
 		$bit = decbin($yearData[3]);
+		$bitArray = array();
 		for ($i = 0; $i < strlen($bit); $i++) {
 			$bitArray[$i] = substr($bit, $i, 1);
 		}
@@ -215,18 +246,22 @@ class Plunar {
 
 	/**
 	 * 获取阳历每年的天数
-	 * @param year 阳历年份
+	 * @param number $year 阳历年份
+	 * @return mixed
 	 */
 	public static function getLunarYearDays($year) {
-			$yearData = self::$lunarInfo[$year-self::$minYear];
 			$monthArray = self::getLunarYearMonths($year);
 			$len = count($monthArray);
 			return $monthArray[$len-1] == 0 ? $monthArray[$len-2] : $monthArray[$len-1];
 	}
+
+	/**
+	 * @param number $year
+	 * @return array
+	 */
 	public static function getLunarYearMonths($year) {
 		$monthData = self::getLunarMonths($year);
 		$res = [];
-		$temp = 0;
 		$yearData = self::$lunarInfo[$year-self::$minYear];
 		$len = ($yearData[0] == 0 ? 12:13);
 		for($i = 0; $i < $len; $i++) {
@@ -241,7 +276,8 @@ class Plunar {
 
 	/**
 	 * 获取闰月
-	 * @param year 阴历年份
+	 * @param number $year 阴历年份
+	 * @return mixed
 	 */
 	public static function getLeapMonth($year) {
 		$yearData = self::$lunarInfo[$year-self::$minYear];
@@ -250,12 +286,13 @@ class Plunar {
 
 	/**
 	 * 计算阴历日期与正月初一相隔的天数
-	 * @param year
-	 * @param month
-	 * @param date
+	 * @param number $year
+	 * @param number $month
+	 * @param number $date
+	 * @return number
 	 */
 	public static function getDaysBetweenLunar($year, $month, $date) {
-		$yearMonth = self::$getLunarMonths($year);
+		$yearMonth = self::getLunarMonths($year);
 		$res = 0;
 		for($i = 1; $i < $month; $i++) {
 				$res += $yearMonth[$i-1];
@@ -266,10 +303,10 @@ class Plunar {
 
 	/**
 	 * 计算某个阳历日期距离当年的正月初一有多少天
-	 * @param Number year 阳历年份
-	 * @param Number month 阳历月份
-	 * @param Number date 阳历日期
-	 * @return Number 天数
+	 * @param number $year 阳历年份
+	 * @param number $month 阳历月份
+	 * @param number $date 阳历日期
+	 * @return number 天数
 	 */
 	public static function getDaysBetweenSolar($year, $month, $date) {
 		$yearInfo = self::$lunarInfo[$year-self::$minYear];
@@ -280,16 +317,15 @@ class Plunar {
 
 	/**
 	 * 根据距离正月初一的天数计算阴历日期
-	 * @param Number year 阳历年份 eg. 1984
-	 * @param Number between 天数 eg. 12
+	 * @param number $year 阳历年份 eg. 1984
+	 * @param number $between 天数 eg. 12
+	 * @return array
 	 */
 	public static function getLunarByBetween($year, $between) {
 		$lunarArray = [];
-		$yearMonth = [];
 		$t = 0;
 		$e = 0;
 		$leapMonth = 0;
-		$m = '';
 		if($between == 0) {
 			array_push($lunarArray, self::toYear($year), '正月', '初一');
 			$t = 1;
@@ -322,7 +358,8 @@ class Plunar {
 
 	/**
 	 * 获取年份的阴历叫法 eg. 一九八四
-	 * @param Number year 阳历年份
+	 * @param number $year 阳历年份
+	 * @return string
 	 */
 	public static function toYear($year) {
 		$year_arr = str_split($year);
@@ -331,8 +368,9 @@ class Plunar {
 
 	/**
 	 * 获取月份或日期的阴历叫法 eg. 腊月 | 初八
-	 * @param Number num 数字
-	 * @param Boolean isMonth 是否是月份的数字
+	 * @param number $num 数字
+	 * @param boolean $isMonth 是否是月份的数字
+	 * @return string
 	 */
 	public static function getCapitalNum($num, $isMonth = false) {
 		$monthHash = ['', '正', '二', '三', '四', '五', '六', '七', '八', '九', '十', '冬', '腊'];
@@ -340,6 +378,7 @@ class Plunar {
 		if($isMonth) {
 			return $monthHash[$num].'月';
 		}
+		$str = '';
 		if($num <= 10) {
 			$str = '初'.$dateHash[$num];
 		} else if($num > 10&&$num < 20) {
