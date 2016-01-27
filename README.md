@@ -6,7 +6,7 @@ Plunar
 [![Total Downloads](https://poser.pugx.org/guojikai/plunar/downloads)](https://packagist.org/packages/guojikai/plunar)
 [![Latest Unstable Version](https://poser.pugx.org/guojikai/plunar/v/unstable)](https://packagist.org/packages/guojikai/plunar)
 [![License](https://poser.pugx.org/guojikai/plunar/license)](https://packagist.org/packages/guojikai/plunar)
-[![Build Status](https://travis-ci.org/guojikai/plunar.png?branch=master)](https://travis-ci.org/guojikai/plunar)))
+[![Build Status](https://travis-ci.org/guojikai/plunar.png?branch=master)](https://travis-ci.org/guojikai/plunar)
 
 安装
 ----
