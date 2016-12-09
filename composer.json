@@ -20,5 +20,12 @@
         "psr-4": {
             "Plunar\\": "src"
         }
+    },
+    "repositories": {
+        "packagist": {
+            "type": "composer",
+            "url": "https://packagist.phpcomposer.com"
+        }
     }
 }
+
