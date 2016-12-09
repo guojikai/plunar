@@ -76,8 +76,11 @@ class Plunar {
         if(is_string($year) && $month == 0 && $date == 0) {
             $datetime->setTimestamp(strtotime($year));
         }
-        if($year > 9999) {
+        if($year > 9999 && $month == 0 && $date == 0) {
             $datetime->setTimestamp($year);
+        }
+        if($year && $month && $date) {
+            $datetime->setDate($year, $month, $date);
         }
         self::isValidDate($datetime);
         return $datetime;
@@ -92,7 +95,7 @@ class Plunar {
      * @return bool
      * @throws PlunarException
      */
-    public static function isValidDate($datetime) {
+    private static function isValidDate($datetime) {
         $minTime = mktime(0, 0, 0, 2, 9, self::$minYear);
         $maxTime = mktime(0, 0, 0, 2, 9, self::$maxYear);
         if($datetime->getTimestamp() < $minTime || $datetime->getTimestamp() > $maxTime) {
@@ -129,7 +132,7 @@ class Plunar {
      */
     public static function solarToLunar($year, $month = 0, $date = 0)
     {
-        $datetime = self::getDateTime($year, $month = 0, $date = 0);
+        $datetime = self::getDateTime($year, $month, $date);
         return self::getLunarByBetween($datetime->format('Y'), self::getDaysBetweenSolar($datetime->format('Y'), $datetime->format('n'), $datetime->format('j')) );
     }
 
