@@ -8,8 +8,8 @@ class PlunarTest extends \PHPUnit_Framework_TestCase
 {
     public function testIsValidDate()
     {
-        $this->assertTrue(Plunar::isValidDate('1984-09-22'));
         $this->assertTrue(Plunar::isValidDate('1984/9/22'));
+        $this->assertTrue(Plunar::isValidDate('2012-12-21'));
         $this->assertTrue(Plunar::isValidDate(464637600));
         $this->assertTrue(Plunar::isValidDate(2016, 1, 26));
         $this->assertTrue(Plunar::isValidDate(1891, 2, 9));
