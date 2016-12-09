@@ -6,22 +6,13 @@ use Plunar\Plunar;
 
 class PlunarTest extends \PHPUnit_Framework_TestCase
 {
-    public function testIsValidDate()
-    {
-        $this->assertTrue(Plunar::isValidDate('1984/9/22'));
-        $this->assertTrue(Plunar::isValidDate('2012-12-21'));
-        $this->assertTrue(Plunar::isValidDate(464637600));
-        $this->assertTrue(Plunar::isValidDate(2016, 1, 26));
-        $this->assertTrue(Plunar::isValidDate(1891, 2, 9));
-        $this->assertTrue(Plunar::isValidDate(2100, 2, 9));
-    }
 
     /**
      * @expectedException \Plunar\PlunarException
      */
     public function testIsValidDateException()
     {
-        Plunar::isValidDate(1816, 1, 26);
+        Plunar::solarToLunar(1816, 1, 26);
     }
 
     /**
@@ -29,7 +20,7 @@ class PlunarTest extends \PHPUnit_Framework_TestCase
      */
     public function testIsValidDateExceptionLess()
     {
-        Plunar::isValidDate(1891, 2, 8);
+        Plunar::solarToLunar(1891, 2, 8);
     }
 
     /**
@@ -37,7 +28,7 @@ class PlunarTest extends \PHPUnit_Framework_TestCase
      */
     public function testIsValidDateExceptionThan()
     {
-        Plunar::isValidDate(2100, 2, 10);
+        Plunar::solarToLunar(2100, 2, 10);
     }
 
     public function testSolarToLunar()
