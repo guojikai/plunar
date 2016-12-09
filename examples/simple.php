@@ -8,7 +8,8 @@ use Plunar\Plunar;
 use Plunar\PlunarException;
 
 try {
-    $lunar_array = Plunar::solarToLunar(464637600);
+    //$lunar_array = Plunar::solarToLunar(464637600);
+    $lunar_array = Plunar::solarToLunar(1984, 9, 22);
 } catch (PlunarException $e) {
     echo $e->getMessage();
     exit;
