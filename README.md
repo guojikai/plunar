@@ -2,8 +2,8 @@ Plunar
 ======
 一个PHP版中国阴历转换工具，用于将阳历日期转换为中国阴历日期。
 
-[![Latest Stable Version](https://poser.pugx.org/guojikai/plunar/v/stable)](https://packagist.org/packages/guojikai/plunar)
 [![Total Downloads](https://poser.pugx.org/guojikai/plunar/downloads)](https://packagist.org/packages/guojikai/plunar)
+[![Latest Stable Version](https://poser.pugx.org/guojikai/plunar/v/stable)](https://packagist.org/packages/guojikai/plunar)
 [![Latest Unstable Version](https://poser.pugx.org/guojikai/plunar/v/unstable)](https://packagist.org/packages/guojikai/plunar)
 [![License](https://poser.pugx.org/guojikai/plunar/license)](https://packagist.org/packages/guojikai/plunar)
 [![Build Status](https://travis-ci.org/guojikai/plunar.svg?branch=master)](https://travis-ci.org/guojikai/plunar)
