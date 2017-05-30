@@ -31,10 +31,10 @@ use Plunar\PlunarException;
 
 try {
     //支持字符串输入形式 Plunar::solarToLunar('1984-09-22'); 
-	$lunar_array = Plunar::solarToLunar(1984, 9, 22);
+    $lunar_array = Plunar::solarToLunar(1984, 9, 22);
 } catch (PlunarException $e) {
-	echo $e->getMessage();
-	exit;
+    echo $e->getMessage();
+    exit;
 }
 
 var_dump($lunar_array);
